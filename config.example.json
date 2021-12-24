@@ -1,0 +1,16 @@
+{
+    "SenderAddress": "mailservice@example.com",
+    "SenderPassword": "iloveyou",
+    "ServerName": "1.2.3.4",
+    "ServerPort": 123,
+    "Sites": {
+        "Test": {
+            "ReceiverAddress": "test@example.com",
+            "Fields": [
+                "a",
+                "b",
+                "c"
+            ]
+        }
+    }
+}
