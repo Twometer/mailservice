@@ -1,0 +1,2 @@
+# mailservice
+📧 Mail sending service
