@@ -7,6 +7,7 @@ import (
 
 type SiteConfig struct {
 	ReceiverAddress string
+	CorsOrigin      string
 	Fields          []string
 }
 
