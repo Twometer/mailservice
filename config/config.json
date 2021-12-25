@@ -6,7 +6,7 @@
     "Sites": {
         "Test": {
             "ReceiverAddress": "foo@bar.com",
-            "CorsOrigin": "foobar.com",
+            "CorsOrigin": "https://foobar.com",
             "Fields": ["one", "two", "three"]
         }
     }

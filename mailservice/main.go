@@ -1,10 +1,12 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"log"
 	"os"
+	"time"
 	"twometer.dev/mailservice/config"
 )
 
@@ -51,6 +53,18 @@ func main() {
 
 	log.Println("Initializing web server...")
 	r := gin.Default()
+
+	var allowedOrigins []string
+	for _, v := range conf.Sites {
+		allowedOrigins = append(allowedOrigins, v.CorsOrigin)
+	}
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: allowedOrigins,
+		AllowMethods: []string{"POST"},
+		AllowHeaders: []string{"Origin", "Content-Length", "Content-Type"},
+		MaxAge:       12 * time.Hour,
+	}))
+
 	r.POST("/", func(context *gin.Context) {
 		handleRequest(&conf, tmpl, context)
 	})
