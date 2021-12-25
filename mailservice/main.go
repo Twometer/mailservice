@@ -3,26 +3,44 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"html/template"
 	"log"
 	"net/smtp"
 	"os"
 	"strconv"
+	"strings"
 )
 
-func buildMail(to string, subject string, body string) []byte {
+type templateCtx struct {
+	Site   string
+	Fields map[string]string
+}
+
+func buildMail(to string, subject string, contentType string, body string) []byte {
 	mail := fmt.Sprintf("To: %s\r\n"+
 		"Subject: %s\r\n"+
+		"Content-Type: %s\r\n"+
 		"\r\n"+
-		"%s\r\n", to, subject, body)
+		"%s\r\n", to, subject, contentType, body)
 	return []byte(mail)
 }
 
 func sendMail(config *ServiceConfig, site *SiteConfig, values map[string]string) bool {
-	auth := smtp.PlainAuth("", config.SenderAddress, config.SenderPassword, config.ServerName)
+	wr := strings.Builder{}
+	data, _ := os.ReadFile("config/template.html")
+	tpl, err := template.New("mail").Parse(string(data))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = tpl.Execute(&wr, templateCtx{Site: site.CorsOrigin, Fields: values})
+	if err != nil {
+		log.Fatalln(err)
+	}
 
+	auth := smtp.PlainAuth("", config.SenderAddress, config.SenderPassword, config.ServerName)
 	addr := config.ServerName + ":" + strconv.Itoa(int(config.ServerPort))
-	msg := buildMail(site.ReceiverAddress, "Twometer Mail Service", fmt.Sprint("You have received a new message:", values))
-	err := smtp.SendMail(addr, auth, config.SenderAddress, []string{site.ReceiverAddress}, msg)
+	msg := buildMail(site.ReceiverAddress, "Twometer Mail Service", "text/html", wr.String())
+	err = smtp.SendMail(addr, auth, config.SenderAddress, []string{site.ReceiverAddress}, msg)
 	if err != nil {
 		fmt.Println("Failed to send message:", err)
 		return false
@@ -50,7 +68,7 @@ func handleRequest(config *ServiceConfig, site *SiteConfig, context *gin.Context
 func main() {
 	log.SetOutput(os.Stdout)
 
-	config, err := LoadConfig("config/config.json")
+	config, err := LoadConfig("config/config.secret.json")
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %s", err)
 		return
