@@ -1,0 +1,13 @@
+{
+    "SenderAddress": "mailservice@example.com",
+    "SenderPassword": "iloveyou",
+    "ServerName": "smtp.example.com",
+    "ServerPort": 587,
+    "Sites": {
+        "Test": {
+            "ReceiverAddress": "foo@bar.com",
+            "CorsOrigin": "foobar.com",
+            "Fields": ["one", "two", "three"]
+        }
+    }
+}
